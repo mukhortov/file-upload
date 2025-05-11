@@ -50,3 +50,13 @@ The boilerplate provides Tailwind CSS by default. If you want to use something e
 ## Testing
 
 Vitest is provided by default for testing, however you are free to use whatever you like and are familiar with.
+
+
+## TODO
+
+- [ ] Better error handling
+- [ ] Tests
+- [ ] Sass global variables
+- [ ] Handle large files uploads (larger than 5MB?)
+- [ ] Upload progress for every file in the upload list
+

@@ -14,7 +14,11 @@ export const App = (): ReactElement => {
         </p>
 
         <div className={styles.uploadContainer}>
-          <FileUpload variant="drop" onFileUploadDone={() => undefined} />
+          <FileUpload
+            variant="drop"
+            acceptedFileTypes={['image/jpeg', 'image/png', 'application/pdf']}
+            onFileUploadDone={uploadStatus => console.log('Upload status:', uploadStatus)}
+          />
         </div>
       </div>
     </main>

@@ -1,13 +1,12 @@
 import { useState, useRef } from 'react'
 import { type FileUploadVariant } from 'model/FileUploadModel'
-import styles from './FileUploadSelect.module.sass'
 import { Button } from 'components/Button/Button'
+import styles from './FileUploadSelect.module.sass'
 
 export interface FileUploadSelectProps {
   onFileSelect: (files: FileList) => void
   variant?: FileUploadVariant
   acceptedFileTypes?: string[]
-  maxFileSize?: number
   multipleFiles?: boolean
 }
 
@@ -94,7 +93,8 @@ export const FileUploadSelect = ({
     styles.dropZone,
     isDraggingOver && styles.dragOver,
     filesLength > 0 && styles.hasFiles,
-    (isInvalidFileType || isTooManyFiles) && styles.invalidFileType,
+    isInvalidFileType && styles.invalidFileType,
+    isTooManyFiles && styles.tooManyFiles,
   ].join(' ')
 
   const statusText = () => {
@@ -155,7 +155,7 @@ export const FileUploadSelect = ({
         </div>
       ) : (
         <div className={styles.buttonContainer}>
-          <Button tabIndex={0} onClick={handleClick} area-label="Select files">
+          <Button tabIndex={0} onClick={handleClick} aria-label="Select files">
             Select files
           </Button>
           <div>{statusText()}</div>

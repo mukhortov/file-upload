@@ -5,19 +5,19 @@ import { Button } from 'components/Button/Button'
 import { uploadFile } from 'service/uploadFile'
 import styles from './FileUpload.module.sass'
 
-interface FileUploadProps extends Pick<FileUploadSelectProps, 'variant'> {
-  onFileUploadDone?: (files: FileList) => void
+type UploadStatus = 'pending' | 'uploading' | 'uploaded' | 'error'
+
+interface FileUploadProps extends Pick<FileUploadSelectProps, 'variant' | 'acceptedFileTypes' | 'multipleFiles'> {
+  onFileUploadDone?: (status?: UploadStatus) => void
 }
 
-export const FileUpload = ({ variant, onFileUploadDone }: FileUploadProps) => {
+export const FileUpload = ({ onFileUploadDone, ...rest }: FileUploadProps) => {
   const [files, setFiles] = useState<FileList | undefined>()
-  const [isUploading, setIsUploading] = useState(false)
-  const [isUploaded, setIsUploaded] = useState(false)
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>()
 
   const onFileSelect = (fileList: FileList) => {
     setFiles(fileList)
-    setIsUploaded(false)
-    setIsUploading(false)
+    setUploadStatus('pending')
   }
 
   const handleUploadButtonClick = () => {
@@ -25,37 +25,39 @@ export const FileUpload = ({ variant, onFileUploadDone }: FileUploadProps) => {
       return
     }
 
-    setIsUploading(true)
-    setIsUploaded(false)
+    setUploadStatus('uploading')
 
     Promise.all([...files].map(uploadFile))
-      .then(() => {
-        onFileUploadDone?.(files)
+      .then(responses => {
+        const allSuccessful = responses.every(response => response.success)
+        const newStatus = allSuccessful ? 'uploaded' : 'error'
+        setUploadStatus(newStatus)
+        onFileUploadDone?.(newStatus)
       })
       .catch(error => {
+        setUploadStatus('error')
+        onFileUploadDone?.('error')
         console.error('Error uploading files:', error)
-      })
-      .finally(() => {
-        setIsUploading(false)
-        setIsUploaded(true)
       })
   }
 
   return (
     <div className={styles.container}>
-      <FileUploadSelect
-        variant={variant}
-        acceptedFileTypes={['image/jpeg', 'image/png', 'application/pdf']}
-        onFileSelect={onFileSelect}
-        // multipleFiles={false}
-      />
+      <FileUploadSelect onFileSelect={onFileSelect} {...rest} />
       {files && <FileUploadStatus files={files} />}
-      {files && !isUploaded && (
-        <Button onClick={handleUploadButtonClick} disabled={isUploading}>
-          {isUploading ? 'Uploading...' : 'Upload'}
+      {files && uploadStatus !== 'uploaded' && (
+        <Button
+          onClick={handleUploadButtonClick}
+          disabled={uploadStatus === 'uploading'}
+          tabIndex={0}
+          aria-label="Upload files"
+          role="button"
+        >
+          {uploadStatus === 'uploading' ? 'Uploading...' : 'Upload'}
         </Button>
       )}
-      {isUploaded && <p className={styles.uploadSuccess}>Files uploaded successfully!</p>}
+      {uploadStatus === 'uploaded' && <p className={styles.uploadSuccess}>Files uploaded successfully!</p>}
+      {uploadStatus === 'error' && <p className={styles.uploadError}>Files upload failed. Please try again.</p>}
     </div>
   )
 }

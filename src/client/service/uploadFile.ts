@@ -1,6 +1,7 @@
 interface UploadResponse {
   success: boolean
   message: string
+  fileName: string
 }
 
 export const uploadFile = async (file: File): Promise<UploadResponse> => {
@@ -17,13 +18,19 @@ export const uploadFile = async (file: File): Promise<UploadResponse> => {
       method: 'POST',
       body: formData,
     })
+
     if (!response.ok) {
       const errorData = (await response.json()) as { error?: string }
       throw new Error(errorData.error || 'Upload failed')
     }
 
-    const result = (await response.json()) as UploadResponse
-    return result
+    const responseData = (await response.json()) as { message: string }
+
+    return {
+      success: response.ok,
+      message: responseData.message,
+      fileName: file.name,
+    } as UploadResponse
   } catch (error) {
     console.error('Error uploading file:', error)
     throw error

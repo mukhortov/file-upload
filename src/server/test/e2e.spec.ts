@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { beforeAll, describe, expect, it } from 'vitest'
@@ -11,6 +11,13 @@ const TESTING_UPLOADS_CHUNKS_DIR = 'src/server/test/uploads-chunks'
 
 describe('E2E', () => {
   beforeAll(() => {
+    if (!existsSync(TESTING_UPLOADS_DIR)) {
+      mkdirSync(TESTING_UPLOADS_DIR, { recursive: true })
+    }
+    if (!existsSync(TESTING_UPLOADS_CHUNKS_DIR)) {
+      mkdirSync(TESTING_UPLOADS_CHUNKS_DIR, { recursive: true })
+    }
+
     const uploadedFiles = readdirSync(TESTING_UPLOADS_DIR)
     for (const file of uploadedFiles) {
       rmSync(join(TESTING_UPLOADS_DIR, file))

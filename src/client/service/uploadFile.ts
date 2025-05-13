@@ -1,6 +1,6 @@
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
-interface UploadResponse {
+export interface UploadResponse {
   success: boolean
   message: string
   fileName: string

@@ -1,6 +1,6 @@
-# Task Boilerplate
+# File upload component
 
-This is a simple boilerplate for the frontend task. You are free to use it and modify it to your needs.
+The File Upload Component is a lightweight and efficient solution for handling file uploads in web applications. It supports single file uploads, chunked uploads for large files, and provides a simple API for integration.
 
 ## Installation
 
@@ -12,8 +12,6 @@ npm run dev
 This will start a simple dev server with hot reload using vite and express for some mock API requests.
 
 ## API
-
-You find the express API under `src/server`. A file upload API is provided. You can use it and/or modify it to your needs.
 
 ### List of files
 
@@ -45,18 +43,33 @@ POST /api/upload-chunks
 
 ## Styling
 
-The boilerplate provides Tailwind CSS by default. If you want to use something else, feel free to add it.
+This project is using a combination of Sass, CSS Modules, and Tailwind CSS for its styling.
 
 ## Testing
 
-Vitest is provided by default for testing, however you are free to use whatever you like and are familiar with.
+The project includes unit and integration tests. You can run them using the following commands:
 
+### Run all tests
+```bash
+npm run test
+```
+
+### Run server tests
+```bash
+npm run test:server
+```
+
+### Run client tests
+```bash
+npm run test:client
+```
 
 ## TODO
 
 - [x] Handle large files uploads (larger than 5MB?)
-- [ ] Tests
+- [x] Tests
 - [ ] Better error handling
 - [ ] Sass global variables
 - [ ] Upload progress for every file in the upload list
+- [ ] Functionality to list uploaded files
 

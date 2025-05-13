@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import { type FileUploadVariant } from 'model/FileUploadModel'
 import { Button } from 'components/Button/Button'
 import styles from './FileUploadSelect.module.sass'
+import { isFileTypeAccepted } from 'utils/isFileTypeAccepted'
 
 export interface FileUploadSelectProps {
   onFileSelect: (files: FileList) => void
@@ -22,52 +23,49 @@ export const FileUploadSelect = ({
   const [filesLength, setFilesLength] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const isFileTypeAccepted = (file: File): boolean => {
-    if (acceptedFileTypes.length === 0) {
-      return true
-    }
+  const handleFiles = useCallback(
+    (fileList: FileList) => {
+      setFilesLength(0)
+      setIsInvalidFileType(false)
+      setIsTooManyFiles(false)
 
-    return acceptedFileTypes.some((type: string) =>
-      type.endsWith('/*') ? file.type.startsWith(`${type.split('/')[0]}/`) : file.type === type,
-    )
-  }
+      if (!multipleFiles && fileList.length > 1) {
+        setIsTooManyFiles(true)
+        return
+      }
 
-  const handleFiles = (fileList: FileList) => {
-    setFilesLength(0)
-    setIsInvalidFileType(false)
-    setIsTooManyFiles(false)
+      const hasInvalidFiles = [...fileList].some((file: File) => !isFileTypeAccepted(file, acceptedFileTypes))
 
-    if (!multipleFiles && fileList.length > 1) {
-      setIsTooManyFiles(true)
-      return
-    }
-
-    const hasInvalidFiles = [...fileList].some((file: File) => !isFileTypeAccepted(file))
-
-    if (!hasInvalidFiles) {
-      onFileSelect(fileList)
-      setFilesLength(fileList.length)
-    } else {
-      setIsInvalidFileType(hasInvalidFiles)
-    }
-  }
+      if (!hasInvalidFiles) {
+        onFileSelect(fileList)
+        setFilesLength(fileList.length)
+      } else {
+        setIsInvalidFileType(true)
+      }
+    },
+    [multipleFiles, acceptedFileTypes, onFileSelect],
+  )
 
   const defaultEventHandler = (
     event: React.DragEvent<HTMLDivElement>,
-    isDraggingOver: boolean,
-    dropEffect: DataTransfer['dropEffect'],
+    draggingOverValue: boolean,
+    dropEffectValue: DataTransfer['dropEffect'],
   ) => {
     event.preventDefault()
-    setIsDraggingOver(isDraggingOver)
-    event.dataTransfer.dropEffect = dropEffect
+    event.stopPropagation()
+    setIsDraggingOver(draggingOverValue)
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = dropEffectValue
+    }
   }
 
   const onDropHandler = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
+    defaultEventHandler(event, false, 'none')
     const files: FileList = event.dataTransfer.files
 
-    handleFiles(files)
-    setIsDraggingOver(false)
+    if (files && files.length > 0) {
+      handleFiles(files)
+    }
   }
 
   const handleClick = () => {
@@ -95,9 +93,11 @@ export const FileUploadSelect = ({
     filesLength > 0 && styles.hasFiles,
     isInvalidFileType && styles.invalidFileType,
     isTooManyFiles && styles.tooManyFiles,
-  ].join(' ')
+  ]
+    .filter(Boolean)
+    .join(' ')
 
-  const statusText = () => {
+  const memoizedStatusText = useMemo(() => {
     if (filesLength > 0) {
       return `${filesLength} file${filesLength > 1 ? 's' : ''} selected!`
     }
@@ -106,15 +106,13 @@ export const FileUploadSelect = ({
       return 'Drop files here to upload!'
     }
 
-    const acceptedTypesText =
+    const acceptedTypesTextElement =
       acceptedFileTypes.length > 0 ? (
         <p className={styles.acceptedTypes}>Accepted types: {acceptedFileTypes.join(', ')}</p>
-      ) : (
-        ''
-      )
+      ) : null
 
     if (isInvalidFileType) {
-      return <>Invalid file type! {acceptedTypesText}</>
+      return <>Invalid file type! {acceptedTypesTextElement}</>
     }
 
     if (isTooManyFiles) {
@@ -123,10 +121,10 @@ export const FileUploadSelect = ({
 
     return (
       <>
-        {variant === 'drop' ? 'Drag files here or click to select!' : ''} {acceptedTypesText}
+        {variant === 'drop' ? 'Drag files here or click to select!' : ''} {acceptedTypesTextElement}
       </>
     )
-  }
+  }, [filesLength, isDraggingOver, acceptedFileTypes, isInvalidFileType, isTooManyFiles, variant])
 
   return (
     <>
@@ -137,6 +135,7 @@ export const FileUploadSelect = ({
         style={{ display: 'none' }}
         accept={acceptedFileTypes.join(',')}
         multiple={multipleFiles}
+        aria-hidden="true"
       />
       {variant === 'drop' ? (
         <div
@@ -149,16 +148,16 @@ export const FileUploadSelect = ({
           onKeyDown={onEnterKeyPress}
           role="button"
           tabIndex={0}
-          aria-label="Drag and drop files here"
+          aria-label="Drag and drop files here or click to select"
         >
-          {statusText()}
+          {memoizedStatusText}
         </div>
       ) : (
         <div className={styles.buttonContainer}>
-          <Button tabIndex={0} onClick={handleClick} aria-label="Select files">
+          <Button tabIndex={0} onClick={handleClick} aria-label="Select files to upload">
             Select files
           </Button>
-          <div>{statusText()}</div>
+          <div aria-live="polite">{memoizedStatusText}</div>
         </div>
       )}
     </>

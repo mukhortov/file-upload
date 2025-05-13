@@ -56,8 +56,16 @@ export const FileUpload = ({ onFileUploadDone, ...rest }: FileUploadProps) => {
           {uploadStatus === 'uploading' ? 'Uploading...' : 'Upload'}
         </Button>
       )}
-      {uploadStatus === 'uploaded' && <p className={styles.uploadSuccess}>Files uploaded successfully!</p>}
-      {uploadStatus === 'error' && <p className={styles.uploadError}>Files upload failed. Please try again.</p>}
+      {uploadStatus === 'uploaded' && (
+        <p className={styles.uploadSuccess} aria-live="polite">
+          Files uploaded successfully!
+        </p>
+      )}
+      {uploadStatus === 'error' && (
+        <p className={styles.uploadError} aria-live="polite">
+          Files upload failed. Please try again.
+        </p>
+      )}
     </div>
   )
 }

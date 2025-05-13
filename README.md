@@ -54,9 +54,9 @@ Vitest is provided by default for testing, however you are free to use whatever 
 
 ## TODO
 
-- [ ] Better error handling
+- [x] Handle large files uploads (larger than 5MB?)
 - [ ] Tests
+- [ ] Better error handling
 - [ ] Sass global variables
-- [ ] Handle large files uploads (larger than 5MB?)
 - [ ] Upload progress for every file in the upload list
 

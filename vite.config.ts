@@ -8,7 +8,9 @@ export default defineConfig({
   resolve: {
     alias: {
       components: path.resolve(__dirname, './src/client/components'),
+      model: path.resolve(__dirname, './src/client/model'),
       service: path.resolve(__dirname, './src/client/service'),
+      utils: path.resolve(__dirname, './src/client/utils'),
     },
   },
   css: {

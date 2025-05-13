@@ -43,6 +43,10 @@ app.post('/api/upload-single', upload.single('file'), async (req, res) => {
     return res.status(400).json({ error: 'Missing required `file` key in body.' })
   }
 
+  if (!existsSync(UPLOAD_DIR)) {
+    mkdirSync(UPLOAD_DIR)
+  }
+
   // @ts-expect-error uncorrectly typed for v2
   const fileName = req.file.originalName as string
 
@@ -63,6 +67,10 @@ app.post(
   async (req: CustomRequest<{ currentChunkIndex: number; totalChunks: number }>, res: Response) => {
     if (!req.file || !('currentChunkIndex' in req.body) || !('totalChunks' in req.body)) {
       return res.status(400).json({ error: 'Missing required parameters' })
+    }
+
+    if (!existsSync(CHUNK_DIR)) {
+      mkdirSync(CHUNK_DIR)
     }
 
     // @ts-expect-error uncorrectly typed for v2 (originalName is not in the type)

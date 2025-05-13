@@ -17,7 +17,8 @@
     "paths": {
       "components/*": ["./src/client/components/*"],
       "model/*": ["./src/client/model/*"],
-      "service/*": ["src/client/service/*"]
+      "service/*": ["src/client/service/*"],
+      "utils/*": ["src/client/utils/*"]
     },
 
     "strict": true,

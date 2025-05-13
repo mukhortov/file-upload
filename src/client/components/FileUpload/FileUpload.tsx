@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { FileUploadSelect, type FileUploadSelectProps } from 'components/FileUploadSelect/FileUploadSelect'
 import { FileUploadStatus } from 'components/FileUploadStatus/FileUploadStatus'
 import { Button } from 'components/Button/Button'
-import { uploadFile } from 'service/uploadFile'
+import { uploadFiles } from 'service/uploadFile'
 import styles from './FileUpload.module.sass'
 
 type UploadStatus = 'pending' | 'uploading' | 'uploaded' | 'error'
@@ -27,7 +27,7 @@ export const FileUpload = ({ onFileUploadDone, ...rest }: FileUploadProps) => {
 
     setUploadStatus('uploading')
 
-    Promise.all([...files].map(uploadFile))
+    uploadFiles(files)
       .then(responses => {
         const allSuccessful = responses.every(response => response.success)
         const newStatus = allSuccessful ? 'uploaded' : 'error'

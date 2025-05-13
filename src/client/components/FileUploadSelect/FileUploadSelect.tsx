@@ -99,7 +99,7 @@ export const FileUploadSelect = ({
 
   const statusText = () => {
     if (filesLength > 0) {
-      return `${filesLength} file${filesLength > 1 ? 's' : ''} added!`
+      return `${filesLength} file${filesLength > 1 ? 's' : ''} selected!`
     }
 
     if (isDraggingOver) {

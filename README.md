@@ -72,4 +72,3 @@ npm run test:client
 - [ ] Sass global variables
 - [ ] Upload progress for every file in the upload list
 - [ ] Functionality to list uploaded files
-
